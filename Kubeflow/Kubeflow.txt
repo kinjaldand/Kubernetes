@@ -1,0 +1,166 @@
+Basics:
+    Kubeflow is an open source Kubernetes-native platform for developing, orchestrating, deploying, and running scalable and portable machine learning workloads.
+    
+    Composability involves breaking down machine learning workflows into a number of components (or stages) in a sequence and allowing us to put them together in different formations. Many times these stages are each their own systems and we need to move the output of one system to another system as input.
+
+    Portability involves have a consistent way to run and test code:
+    development
+    staging
+    production
+    
+    Benefits of kubernetes:
+        Unified management allows us to use a single cluster management interface for multiple kubernetes clusters. 
+        Job isolation in Kubernetes gives us the ability to move models and ETL pipelines from development to production with less dependency issues. 
+        Resilient infrastructure implies how Kubernetes manages the nodes in the cluster for us and makes sure we have enough machines and resources to accomplish our tasks.
+    
+    MDLC
+        Model Developement LifeCycle
+        MDLC (data exploration, feature preparation, model training/tuning, model serving, model testing, and model versioning)
+        Kubeflow treats MDLC as a machine learning pipeline and implements it as a graph
+
+    Requirements for Kubeflow
+        Kubernetes Cluster
+        kubectl
+    
+    why use kubeflow:
+        Kubeflow was conceived of as a way to run machine learning workflows on Kubernetes and is used typically for the following reasons:
+
+        You want to train/serve machine learning models in different environments (e.g. local, on-premise, and cloud)
+        You want to use Jupyter notebooks to manage machine learning training jobs
+        You want to launch training jobs that use resources (such as additional CPUs or GPUs – that aren’t available on your personal computer)
+        You want to combine machine learning code (e.g., TensorFlow code with other processes (For example, you may want to use TensorFlow/agents to run simulations to generate data for training reinforcement learning models.)
+        
+        security
+        data access
+        driver management
+        model integration
+        
+        Kubeflow and kubernetes handle these requirements for us with their scheduling and container management functionality. A great example is how we may have 3 different data scientists all needing to each run their own notebook on a single GPU. Kubernetes with kubeflow handles keeping track of who is running what code on what machine and which GPUs are currently in use. Kubernetes also keeps track on what jobs are waiting in the job queue and will schedule the waiting jobs once an in-process job finishes.
+    
+Components:
+    Istio
+        Kubeflow uses Istio to provide fine grained access control to individual services within a Kubeflow cluster.
+    
+    Notebooks Jupyter
+        - can create new server
+        - run kubectl commands
+        
+    Training operators
+        automate execution of ML algo
+    
+    Pipelines:
+        the underlying workflow engine—Argo Workflows, a standard Kubernetes pipeline tool—that Kubeflow uses to run pipelines
+        
+    Pipeline execution components:
+        Python SDK
+        You create components or specify a pipeline using the Kubeflow Pipelines domain-specific language (DSL).
+
+        DSL compiler
+        The DSL compiler transforms your pipeline’s Python code into a static configuration (YAML).
+
+        Pipeline Service
+        The Pipeline Service creates a pipeline run from the static configuration.
+
+        Kubernetes resources
+        The Pipeline Service calls the Kubernetes API server to create the necessary Kubernetes custom resource definitions (CRDs) to run the pipeline.
+
+        Orchestration controllers
+        A set of orchestration controllers execute the containers needed to complete the pipeline execution specified by the Kubernetes resources (CRDs). The containers execute within Kubernetes Pods on virtual machines. An example controller is the Argo Workflow controller, which orchestrates task-driven workflows.
+
+        Artifact storage
+        The Kubernetes Pods store two kinds of data:
+
+            Metadata
+            Experiments, jobs, runs, single scalar metrics (generally aggregated for the purposes of sorting and filtering), etc. Kubeflow Pipelines stores the metadata in a MySQL database.
+
+            Artifacts
+            Pipeline packages, views, large-scale metrics like time series (usually used for investigating an individual run’s performance and for debugging), etc. Kubeflow Pipelines stores the artifacts in an artifact store like MinIO server, Google Cloud Storage (GCS), or Amazon S3.
+            
+            
+    Katib:
+        perform hyperparameter optimizations easily on Kubernetes clusters
+         
+        Katib components:
+            Experiment
+            A single optimization run over a feasible space. Each experiment contains a configuration describing the feasible space, as well as a set of trials. It is assumed that objective function f(x) does not change in the course of the experiment.
+
+            Trial
+            A list of parameter values, x, that will lead to a single evaluation of f(x). A trial can be “completed,” which means that it has been evaluated and the objective value f(x) has been assigned to it, otherwise it is “pending.” One trial corresponds to one job.
+
+            Job
+            A process responsible for evaluating a pending trial and calculating its objective value.
+
+            Suggestion
+            An algorithm to construct a parameter set. Currently, Katib supports the following exploration algorithms:
+            Random,Grid,Hyperband,Bayesian optimization
+            
+    Model Inference:
+        It provides several model serving options, including TFServing, Seldon serving, PyTorch serving, and TensorRT. It also provides an umbrella implementation, KFServing, which generalizes the model inference concerns of autoscaling, networking, health checking, and server configuration.
+        
+        The overall implementation is based on leveraging Istio (covered later) and Knative serving—serverless containers on Kubernetes
+        
+        KFServing Components:
+            Preprocessor
+            An optional component responsible for the transformation of the input data into content/format required for model serving
+
+            Predictor
+            A mandatory component responsible for an actual model serving
+
+            Postprocessor
+            An optional component responsible for the transformation/enriching of the model serving result into content/format required for output
+            
+    Metadata:
+        An important component of Kubeflow is metadata management, providing capabilities to capture and track information about a model’s creation.
+        ML Metadata is both the infrastructure and a library for recording and retrieving metadata associated with an ML developer’s and data scientist’s workflow. 
+        
+        metadata component:
+            Data sources used for the model’s creation
+
+            The artifacts generated through the components/steps of the pipeline
+
+            The executions of these components/steps
+
+            The pipeline and associated lineage information
+    
+Support Components:
+    MinIO :
+         a high-performance distributed object storage server, designed for large-scale private cloud infrastructure. Not just for private clouds, MinIO can also act as a consistent gateway to public APIs.
+         MinIO Gateway provides S3 APIs on top of Azure Blob storage, Google Cloud storage, Gluster, or NAS storage
+         
+    Istio:
+        a service mesh providing such vital features as service discovery, load balancing, failure recovery, metrics, monitoring, rate limiting, access control, and end-to-end authentication. Istio, as a service mesh, layers transparently onto a Kubernetes cluster. 
+        Istio implementation is logically split into a data plane and control plane. The data plane is composed of a set of intelligent proxies. These proxies mediate and control all network communication between pods. The control plane manages and configures the proxies to route traffic
+        
+        The main components of Istio are:
+
+            Envoy
+            Istio data plane is based on Envoy proxy, which provides features like failure handling (for example, health checks and bounded retries), dynamic service discovery, and load balancing.
+            
+            Mixer
+            Mixer enforces access control and usage policies across the service mesh, and collects telemetry data from the Envoy proxy and other services. The proxy extracts request-level attributes, and sends them to Mixer for evaluation.
+
+            Pilot
+            Pilot provides service discovery for the Envoy sidecars and traffic management capabilities for intelligent routing (e.g., A/B tests, canary rollouts) and resiliency (timeouts, retries, circuit breakers, etc.). This is done by converting high-level routing rules that control traffic behavior into Envoy-specific configurations, and propagating them to the sidecars at runtime. Pilot abstracts platform-specific service discovery mechanisms and synthesizes them into a standard format that any sidecar conforming with the Envoy data plane APIs can consume.
+            
+            Galley
+            Galley is Istio’s configuration validation, ingestion, processing, and distribution component. It is responsible for insulating the rest of the Istio components from the details of obtaining user configuration from the underlying platform.
+
+            Citadel
+            Citadel enables strong service-to-service and end-user authentication by providing identity and credential management. It allows for upgrading unencrypted traffic in the service mesh. Using Citadel, operators can enforce policies based on service identity rather than on relatively unstable layer 3 or layer 4 network identifiers.
+        
+        Kubeflow uses Istio to provide a proxy to the Kubeflow UI and to route requests appropriately and securely. Kubeflow’s KFServing leverages Knative, which requires a service mesh, like Istio.
+    
+    Knative:
+        
+
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
