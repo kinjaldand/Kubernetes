@@ -211,7 +211,14 @@ Artifact and Metadata Store:
 
                 User code such as notebook, Python, R, or Java application
                 
-            
+Deploying a TensorFlow Training Job
+    Our training code must be easily packageable and deployable to various different environments. One of the ways to achieve this is to use TFJob—a Kubernetes custom resource (implemented using Kubernetes operator tf-operator) that you can use to run TensorFlow training jobs on Kubernetes.
+    
+    Distributed Training    
+        The TFJob interface supports multiworker distributed training. Conceptually, a TFJob is a logical grouping of all resources related to a training job, including pods and services.
+        In Kubeflow, each replicated worker or parameter server is scheduled on its own single-container pod. 
+        In order for the replicas to synchronize with each other, each replica needs to expose itself through an endpoint, which is a Kubernetes internal service. 
+        Grouping these resources logically under a parent resource (which is the TFJob) allows these resources to be co-scheduled and garbage collected together.
                 
                         
                         
