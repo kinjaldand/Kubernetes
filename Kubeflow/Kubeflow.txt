@@ -152,7 +152,73 @@ Support Components:
     
     Knative:
         
+Artifact and Metadata Store:
+    The collection of these datasets and the transformation applied to them is called the metadata of our model.
+    Model metadata is critical for reproducibility in machine learning.
+    
+    Kubeflow ML Metadata :
+    Component of kubeflow for tracking
+    Kubeflow ML Metadata is a library for recording and retrieving metadata associated with model creation.
+    all the information is organized in terms of a workspace, run, and execution
+    Workspace, run, and execution can be defined multiple times in the same or different applications. If they do not exist, they will be created; if they already exist, they will be used.
+    Kubeflow does not automatically track the datasets used by the application. They have to be explicitly registered in code.
+    metadata.DataSet
+    metadata.Model
+    metadata.Metrics
+    
+    Viewing Metadata    
+        Programmatic Query
+        UI
+    
+    MLFlow:
+        A more powerful implementation of machine learning metadata management is done by MLflow. Though MLflow isn’t part of Kubeflow distribution, it’s very easy to deploy it alongside Kubeflow and use it from Kubeflow-based applications.
 
+        MLflow Projects
+            Packaging ML code in a reusable, reproducible form in order to share with other data scientists or transfer to production
+
+        MLflow Models
+            Managing and deploying models from a variety of ML libraries to a variety of model serving and inference platforms
+        
+        MLflow Tracking
+            Tracking experiments to record and compare parameters and results
+            An API and UI for logging parameters, code versions, metrics, and output files when running your machine learning code and for visualizing the results
+            
+            MLflow Tracking is organized around the concept of runs, which are executions of some piece of data science code. Each run records the following information:
+
+                Code version
+                Git commit hash used for the run, if it was run from an MLflow Project
+
+                Start and end time
+                Start and end time of the run
+
+                Source
+                Name of the file to launch the run, or the project name and entry point for the run if run from an MLflow Project
+
+                Parameters
+                Key-value input parameters of your choice. Both keys and values are strings.
+
+                Metrics
+                Key-value metrics, where the value is numeric. Each metric can be updated throughout the course of the run (for example, to track how your model’s loss function is converging), and MLflow records and lets you visualize the metric’s full history.
+
+                Artifacts
+                Output files in any format. Here you can record images (such as PNG files), models (for example, a pickled Scikit-learn model), and data files (for example, a Parquet file) as artifacts.
+                
+            The main components of this architecture are:
+
+                MinIO server, already part of the Kubeflow installation
+
+                MLflow tracking server—the MLflow UI component—an additional component that needs to be added to Kubeflow installation to support MLflow usage
+
+                User code such as notebook, Python, R, or Java application
+                
+            
+                
+                        
+                        
+                        
+                    
+    
+        
 
         
         
